@@ -1,19 +1,25 @@
-require('dotenv').config()
+require("dotenv").config();
 const express = require("express");
-const bodyParser = require('body-parser');
-const passport = require('./bootstrap/passport');
+const bodyParser = require("body-parser");
+const passport = require("./bootstrap/passport");
+const cors = require("cors");
 
 const app = express();
 const port = 5000;
 
-const api = require('./api');
-const bootstrap = require('./bootstrap');
+const api = require("./api");
+const bootstrap = require("./bootstrap");
 
 bootstrap();
 
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+const corsOptions = {
+  origin: "http://localhost:3000",
+};
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.use(passport.initialize());
+app.use(cors(corsOptions));
 
 app.use(api);
 

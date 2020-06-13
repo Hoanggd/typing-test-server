@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("../config");
 const passport = require("passport");
+const axios = require("axios");
 
 module.exports.createUser = async (req, res) => {
   try {
@@ -58,4 +59,38 @@ module.exports.login = (req, res, next) => {
       });
     }
   })(req, res, next);
+};
+
+module.exports.loginWithFb = async (req, res) => {
+  try {
+    const fbId = req.body.id;
+    const fbToken = req.body.accessToken;
+    const photoUrl = req.body.picture.data.url;
+    const name = req.body.name;
+    const response = await axios({
+      method: "get",
+      url: "https://graph.facebook.com/v7.0/" + fbId,
+      headers: { Authorization: "Bearer " + fbToken },
+    });
+
+    // if valid token
+    if (response.data && response.data.id) {
+      const user = await User.findOne({fbId});
+      if (!user) {
+        const newUser = new User({ fbId, name: name, photoUrl });
+        await newUser.save();
+      }
+      const token = jwt.sign(
+        {
+          userId: user._id,
+        },
+        config.jwt_secret,
+        { expiresIn: config.jwt_exp }
+      );
+
+      res.json({name, photoUrl, token})
+    }
+  } catch (error) {
+    console.log({ error });
+  }
 };

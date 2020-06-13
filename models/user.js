@@ -2,10 +2,11 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
-  email: { type: String, required: true },
-  password: { type: String, required: true, select: false },
-  photoUrl: { type: String, required: true },
-  name: { type: String, required: true },
+  email: { type: String },
+  password: { type: String, select: false },
+  photoUrl: { type: String },
+  name: { type: String },
+  fbId: {type: String}
 });
 
 userSchema.methods.verifyPassword = async function (password) {
