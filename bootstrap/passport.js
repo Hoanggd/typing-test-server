@@ -42,24 +42,24 @@ passport.use(
   })
 );
 
-passport.use(
-  new FacebookStrategy(
-    {
-      clientID: config.facebook_key,
-      clientSecret: config.facebook_secret,
-      callbackURL: "http://localhost:5000/login/facebook/callback",
-      profileFields: ["id", "displayName", "picture.type(large)"],
-    },
-    async function (accessToken, refreshToken, profile, cb) {
-      const user = await User.findOneAndUpdate({fbId: profile.id}, {}, {upsert: true})
-      user.save();
-      return cb(null, {
-        fbId: profile.id,
-        fbToken: accessToken
-      });
-    }
-  )
-);
+// passport.use(
+//   new FacebookStrategy(
+//     {
+//       clientID: config.facebook_key,
+//       clientSecret: config.facebook_secret,
+//       callbackURL: "http://localhost:5000/login/facebook/callback",
+//       profileFields: ["id", "displayName", "picture.type(large)"],
+//     },
+//     async function (accessToken, refreshToken, profile, cb) {
+//       const user = await User.findOneAndUpdate({fbId: profile.id}, {}, {upsert: true})
+//       user.save();
+//       return cb(null, {
+//         fbId: profile.id,
+//         fbToken: accessToken
+//       });
+//     }
+//   )
+// );
 
 passport.serializeUser(function (user, done) {
   done(null, user);

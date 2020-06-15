@@ -76,13 +76,16 @@ module.exports.loginWithFb = async (req, res) => {
     // if valid token
     if (response.data && response.data.id) {
       const user = await User.findOne({fbId});
+      let newUserId
       if (!user) {
         const newUser = new User({ fbId, name: name, photoUrl });
+        newUserId = newUser._id
         await newUser.save();
       }
+      
       const token = jwt.sign(
         {
-          userId: user._id,
+          userId: user ? user._id : newUserId,
         },
         config.jwt_secret,
         { expiresIn: config.jwt_exp }
