@@ -8,6 +8,29 @@ const axios = require("axios");
 module.exports.createUser = async (req, res) => {
   try {
     const body = req.body;
+    if (!body.email || !body.name || !body.password) {
+      res.json({
+        error: {
+          code: "missing",
+          message: "Please fill in all the fields"
+        },
+        user: null
+      })
+      return
+    }
+
+    const checkUser = await User.find({ email: body.email });
+    if (checkUser.length) {
+      res.json({
+        error: {
+          code: "email",
+          message: "Email already exist",
+        },
+        user: null,
+      });
+      return
+    }
+
     const hash = await bcrypt.hash(req.body.password, 8);
     const user = new User({
       ...body,
@@ -17,16 +40,21 @@ module.exports.createUser = async (req, res) => {
     });
     const result = await user.save();
 
-    const token = jwt.sign({ userId: result._id }, process.env.JWT_SECRET, {
-      expiresIn: config.JWT_EXP,
+    const token = jwt.sign({ userId: result._id }, config.jwt_secret, {
+      expiresIn: config.jwt_exp,
     });
 
-    res.status(200).json({
-      name: result.name,
-      email: result.email,
-      photoUrl: result.photoUrl,
-      token,
-    });
+    const data = {
+      error: null,
+      user: {
+        name: result.name,
+        email: result.email,
+        photoUrl: result.photoUrl,
+        token,
+      },
+    }
+
+    res.status(200).json(data);
   } catch (e) {
     console.log(e);
   }
@@ -75,14 +103,14 @@ module.exports.loginWithFb = async (req, res) => {
 
     // if valid token
     if (response.data && response.data.id) {
-      const user = await User.findOne({fbId});
-      let newUserId
+      const user = await User.findOne({ fbId });
+      let newUserId;
       if (!user) {
         const newUser = new User({ fbId, name: name, photoUrl });
-        newUserId = newUser._id
+        newUserId = newUser._id;
         await newUser.save();
       }
-      
+
       const token = jwt.sign(
         {
           userId: user ? user._id : newUserId,
@@ -91,7 +119,7 @@ module.exports.loginWithFb = async (req, res) => {
         { expiresIn: config.jwt_exp }
       );
 
-      res.json({name, photoUrl, token})
+      res.json({ name, photoUrl, token });
     }
   } catch (error) {
     console.log({ error });

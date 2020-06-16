@@ -9,11 +9,19 @@ module.exports.create = async (req, res) => {
 };
 
 module.exports.getResults = async (req, res) => {
-  const results = await Result.find({});
-  res.json(results)
-}
+  const num = parseInt(req.query.num);
+  const results = await Result.find({}).sort("-wpm").limit(num).populate({
+    path: "userId",
+    select: "name photoUrl -_id",
+  });
+  res.json(results);
+};
 
 module.exports.history = async (req, res) => {
-  const results = await Result.find({userId: req.user._id});
+  const num = parseInt(req.query.num);
+  const results = await Result.find({ userId: req.user._id }).limit(num).sort("-time").populate({
+    path: "userId",
+    select: "name photoUrl -_id",
+  });
   res.json(results);
-}
+};
