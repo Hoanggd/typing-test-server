@@ -5,6 +5,17 @@ const config = require("../config");
 const passport = require("passport");
 const axios = require("axios");
 
+const photoUrlDefault = [
+  "https://secure.gravatar.com/avatar/e3b51ca72dee4ef87916ae2b9240df50.jpg?s=512&d=https%3A%2F%2Fdev.slack.com%2Fimg%2Favatars%2Fava_0010-512.v1443724322.png",
+  "https://i.redd.it/k0yaetfhwta21.png",
+  "https://secure.gravatar.com/avatar/123abcd123bc12b3c.jpg?s=512&d=https%3A%2F%2Fa.slack-edge.com%2F7fa9%2Fimg%2Favatars%2Fava_0000-512.png",
+  "https://secure.gravatar.com/avatar/03a23d844bc36e58ce55dda42fc2a0c8.jpg?s=512&d=https%3A%2F%2Fa.slack-edge.com%2F7fa9%2Fimg%2Favatars%2Fava_0010-512.png",
+  "https://gitlab.mma.club.uec.ac.jp/uploads/-/system/user/avatar/37/a46dae09db3cebd65cc482c765322699.jpg?width=36",
+  "https://blog.syntonic.io/img/slackicons.png",
+  "https://gitlab.mma.club.uec.ac.jp/uploads/-/system/user/avatar/37/a46dae09db3cebd65cc482c765322699.jpg?width=36",
+  "https://slack-files2.s3-us-west-2.amazonaws.com/avatars/2017-03-28/160764478706_d3b35947b766cfd9bc67_512.png",
+];
+
 module.exports.createUser = async (req, res) => {
   try {
     const body = req.body;
@@ -12,11 +23,11 @@ module.exports.createUser = async (req, res) => {
       res.json({
         error: {
           code: "missing",
-          message: "Please fill in all the fields"
+          message: "Please fill in all the fields",
         },
-        user: null
-      })
-      return
+        user: null,
+      });
+      return;
     }
 
     const checkUser = await User.find({ email: body.email });
@@ -28,7 +39,7 @@ module.exports.createUser = async (req, res) => {
         },
         user: null,
       });
-      return
+      return;
     }
 
     const hash = await bcrypt.hash(req.body.password, 8);
@@ -36,7 +47,7 @@ module.exports.createUser = async (req, res) => {
       ...body,
       password: hash,
       photoUrl:
-        "https://avatars3.githubusercontent.com/u/35153917?s=400&u=0b339b12e149dd3c7f10bb2bbd780158631d0915&v=4",
+        photoUrlDefault[Math.floor(Math.random() * photoUrlDefault.length)],
     });
     const result = await user.save();
 
@@ -50,9 +61,10 @@ module.exports.createUser = async (req, res) => {
         name: result.name,
         email: result.email,
         photoUrl: result.photoUrl,
+        _id: result._id,
         token,
       },
-    }
+    };
 
     res.status(200).json(data);
   } catch (e) {
@@ -62,9 +74,10 @@ module.exports.createUser = async (req, res) => {
 
 module.exports.login = (req, res, next) => {
   passport.authenticate("local", function (err, user, info) {
-    if (info && info.error) {
-      res.status(401).json({
-        error: info.error,
+    console.log(info);
+    if (info) {
+      res.status(200).json({
+        error: info,
         user: null,
       });
       return;
@@ -80,10 +93,13 @@ module.exports.login = (req, res, next) => {
       );
 
       res.status(200).json({
-        email: user.email,
-        photoUrl: user.photoUrl,
-        name: user.name,
-        token,
+        error: null,
+        user: {
+          email: user.email,
+          photoUrl: user.photoUrl,
+          name: user.name,
+          token,
+        },
       });
     }
   })(req, res, next);

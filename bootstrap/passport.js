@@ -14,13 +14,13 @@ passport.use(
       const user = await User.findOne({ email: username }).select("+password");
       if (!user) {
         return done(null, false, {
-          error: { code: "email", message: "Incorect Email" },
+          message: "Incorect Email",
         });
       }
       const comparePassword = await user.verifyPassword(password);
       if (!comparePassword) {
         return done(null, false, {
-          error: { code: "password", message: "Incorrect Password" },
+          message: "Incorrect Password",
         });
       }
       return done(null, user);
