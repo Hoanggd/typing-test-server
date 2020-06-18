@@ -13,7 +13,7 @@ const bootstrap = require("./bootstrap");
 bootstrap();
 
 const corsOptions = {
-  origin: "https://tspeedtest.herokuapp.com/",
+  origin: "https://tspeedtest.herokuapp.com",
 };
 
 app.use(bodyParser.urlencoded({ extended: false }));
