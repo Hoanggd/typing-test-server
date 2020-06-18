@@ -12,14 +12,14 @@ const bootstrap = require("./bootstrap");
 
 bootstrap();
 
-const corsOptions = {
-  origin: "https://tspeedtest.herokuapp.com",
-};
+// const corsOptions = {
+//   origin: "https://tspeedtest.herokuapp.com",
+// };
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(passport.initialize());
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use(api);
 
