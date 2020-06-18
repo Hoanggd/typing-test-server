@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const connectDb = () => {
-  mongoose.connect("mongodb://localhost/typing-test", {
+  mongoose.connect("mongodb+srv://tstadmin:tstadmin123@cluster0-v7eju.mongodb.net/typing-test?retryWrites=true&w=majority", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
